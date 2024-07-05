@@ -1,0 +1,276 @@
+// File: api/Users/route.js
+import User from "@/app/(models)/User";
+import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const userData = body.formData;
+
+    //Confirm data exists
+    if (!userData?.email || !userData.password) {
+      return NextResponse.json(
+        { message: "All fields are required." },
+        { status: 400 }
+      );
+    }
+
+    // check for duplicate emails
+    const duplicate = await User.findOne({ email: userData.email })
+      .lean()
+      .exec();
+
+    if (duplicate) {
+      return NextResponse.json({ message: "Duplicate Email" }, { status: 409 });
+    }
+
+    const hashPassword = await bcrypt.hash(userData.password, 10);
+    userData.password = hashPassword;
+
+    await User.create(userData);
+    return NextResponse.json({ message: "User Created." }, { status: 201 });
+  } catch (error) {
+    console.log(err);
+    return NextResponse.json({ message: "Error", error }, { status: 500 });
+  }
+}
+
+// File: api/auth/[...nextauth]/options.js
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import User from "/app/(models)/User";
+import bcrypt from "bcrypt";
+
+export const options = {
+  providers: [
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const user = await User.findOne({ email: credentials.email }).lean();
+        if (!user) return null;
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
+        return user;
+      },
+    }),
+  ],
+  pages: {
+    signIn: "/signin",
+    home: "/"
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.role = user.role;
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.role = token.role;
+        return session;
+      }
+      return session;
+    },
+  },
+};
+// File: api/auth/[...nextauth]/route.js
+import NextAuth from "next-auth";
+import { options } from "./options";
+
+const handler = NextAuth(options);
+export { handler as GET, handler as POST };
+
+// File: api/server/server.js
+// server.js
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const axios = require('axios');
+const nodemailer = require('nodemailer');
+const cron = require('node-cron');
+const User = require('./models/User');
+const Watchlist = require('./models/Watchlist');
+
+const app = express();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+// Fetch stock data
+const fetchStockData = async (tickers) => {
+  const response = await axios.get(`http://127.0.0.1:5000/api/stock-data?tickers=${tickers}`);
+  return response.data;
+};
+
+// Save to watchlist
+app.post('/api/watchlist', async (req, res) => {
+  const { email, ticker } = req.body;
+  let user = await User.findOne({ email });
+  if (!user) {
+    user = new User({ email });
+    await user.save();
+  }
+  const watchlistItem = new Watchlist({ userId: user._id, ticker });
+  await watchlistItem.save();
+  user.watchlist.push(watchlistItem);
+  await user.save();
+  res.status(201).send(watchlistItem);
+});
+
+// Check stock prices and notify users
+cron.schedule('*/5 * * * *', async () => { // Check every 5 minutes
+  const watchlists = await Watchlist.find().populate('userId');
+  const tickers = [...new Set(watchlists.map(w => w.ticker))];
+  const stockData = await fetchStockData(tickers.join(','));
+
+  for (const watchlist of watchlists) {
+    const stock = stockData.find(s => s.ticker === watchlist.ticker);
+    if (stock && stock.stock_info.currentPrice !== watchlist.lastNotifiedPrice) {
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: watchlist.userId.email,
+        subject: 'Stock Price Alert',
+        text: `The price of ${stock.stock_info.longName} (${stock.stock_info.symbol}) has changed to ${stock.stock_info.currentPrice} USD.`
+      };
+      await transporter.sendMail(mailOptions);
+      watchlist.lastNotifiedPrice = stock.stock_info.currentPrice;
+      await watchlist.save();
+    }
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// File: api/stockdata/run.py
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import yfinance as yf
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/api/stock-data', methods=['GET'])
+def get_stock_data():
+    # Get the ticker symbols from the query parameters
+    ticker_symbols = request.args.get('tickers')
+    
+    if not ticker_symbols:
+        return jsonify({"error": "No tickers provided"}), 400
+
+    ticker_symbols = ticker_symbols.split(',')
+
+    stocks_data = []
+
+    for ticker_symbol in ticker_symbols:
+        # Get data for the ticker
+        ticker_data = yf.Ticker(ticker_symbol)
+
+        # Get historical market data
+        hist = ticker_data.history(period="1y").reset_index().to_dict(orient='records')
+
+        # Get stock info
+        stock_info = ticker_data.info
+
+        stocks_data.append({
+            "ticker": ticker_symbol,
+            "historical_data": hist,
+            "stock_info": stock_info
+        })
+
+    return jsonify(stocks_data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+// File: styles/StockContainer.css
+/* StockContainer.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+}
+  
+  .stock-container {
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+  }
+  
+  .stock-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .stock-header .stock-price {
+    font-size: 48px;
+    margin: 0;
+  }
+  
+  .stock-header .stock-change {
+    font-size: 24px;
+    color: #4caf50; /* Green color for positive change */
+  }
+  
+  .stock-header .stock-time {
+    font-size: 14px;
+    color: #888888;
+  }
+  
+  .stock-chart {
+    height: 200px;
+    background-color: #2e2e2e;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: #888888;
+  }
+  
+  .stock-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .detail-item {
+    width: 48%;
+    margin-bottom: 10px;
+  }
+  
+  .detail-item p {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .detail-item p:nth-child(2) {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  

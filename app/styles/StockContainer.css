@@ -1,0 +1,68 @@
+/* StockContainer.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+}
+  
+  .stock-container {
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+  }
+  
+  .stock-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .stock-header .stock-price {
+    font-size: 48px;
+    margin: 0;
+  }
+  
+  .stock-header .stock-change {
+    font-size: 24px;
+    color: #4caf50; /* Green color for positive change */
+  }
+  
+  .stock-header .stock-time {
+    font-size: 14px;
+    color: #888888;
+  }
+  
+  .stock-chart {
+    height: 200px;
+    background-color: #2e2e2e;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: #888888;
+  }
+  
+  .stock-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .detail-item {
+    width: 48%;
+    margin-bottom: 10px;
+  }
+  
+  .detail-item p {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .detail-item p:nth-child(2) {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
