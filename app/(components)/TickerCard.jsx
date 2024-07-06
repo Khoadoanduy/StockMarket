@@ -4,13 +4,14 @@ import "../styles/StockContainer.css";
 
 export default function TickerCard({ ticker }) {
   const [data, setData] = useState(null);
-  // get ticker data
-  const fetchTickerData = async (tickers) => {
+
+  const fetchTickerData = async (ticker) => {
     try {
-      const response = await axios.get(
-        `http://127.0.0.1:5000/api/stock-data?tickers=${tickers}`
+      const response = await axios.post(
+        `http://localhost:3000/api/stockdata`,
+        {symbol: ticker}
       );
-      setData(response.data[0]);
+      setData(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -24,61 +25,67 @@ export default function TickerCard({ ticker }) {
     return <div>Loading...</div>;
   }
 
-  // render ticker card
+  const { quote, historical, searchResults } = data;
+
   return (
     <div className="stock-info border">
       <div className="stock-item">
         <div className="stock-header">
           <h1>
-            {data.stock_info.longName} ({data.stock_info.symbol})
+            {quote.longName} ({quote.symbol})
           </h1>
-          <p>{data.stock_info.currentPrice} USD</p>
+          <p>{quote.regularMarketPrice} USD</p>
           <p className="change">
-            {" "}
             <span>
-              {data.stock_info.priceChange}
-              {data.stock_info.priceChangePercent}%
+              {quote.regularMarketChange}
+              {quote.regularMarketChangePercent}%
             </span>
           </p>
-          <p>
-            Closed:{" "}
-            {new Date(
-              data.historical_data[data.historical_data.length - 1].Date
-            ).toLocaleString()}
-          </p>
+          {historical !== 'Historical data not requested' && (
+            <p>
+              Closed:{" "}
+              {new Date(
+                historical[historical.length - 1].date
+              ).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className="stock-details">
-          <div className="detail-item">
-            <p>Open</p>
-            <p>{data.historical_data[data.historical_data.length - 1].Open}</p>
-          </div>
+          {historical !== 'Historical data not requested' && (
+            <>
+              <div className="detail-item">
+                <p>Open</p>
+                <p>{historical[historical.length - 1].open}</p>
+              </div>
+            </>
+          )}
           <div className="detail-item">
             <p>High</p>
-            <p>{data.stock_info.dayHigh}</p>
+            <p>{quote.regularMarketDayHigh}</p>
           </div>
           <div className="detail-item">
             <p>Low</p>
-            <p>{data.stock_info.dayLow}</p>
+            <p>{quote.regularMarketDayLow}</p>
           </div>
           <div className="detail-item">
             <p>Mkt cap</p>
-            <p>{data.stock_info.marketCap}</p>
+            <p>{quote.marketCap}</p>
           </div>
           <div className="detail-item">
             <p>P/E ratio</p>
-            <p>{data.stock_info.trailingPE}</p>
+            <p>{quote.trailingPE}</p>
           </div>
           <div className="detail-item">
             <p>Div yield</p>
-            <p>{data.stock_info.dividendYield}</p>
+            <p>{quote.dividendYield}</p>
           </div>
           <div className="detail-item">
             <p>52-wk high</p>
-            <p>{data.stock_info.fiftyTwoWeekHigh}</p>
+            <p>{quote.fiftyTwoWeekHigh}</p>
           </div>
           <div className="detail-item">
             <p>52-wk low</p>
-            <p>{data.stock_info.fiftyTwoWeekLow}</p>
+            <p>{quote.fiftyTwoWeekLow}</p>
           </div>
         </div>
       </div>

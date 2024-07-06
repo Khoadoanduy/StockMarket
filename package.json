@@ -29,7 +29,8 @@
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "uri-js": "^4.4.1"
+    "uri-js": "^4.4.1",
+    "yahoo-finance2": "^2.11.3"
   },
   "devDependencies": {
     "@types/react": "18.3.3",
