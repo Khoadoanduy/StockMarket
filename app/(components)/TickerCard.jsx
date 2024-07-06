@@ -7,9 +7,14 @@ export default function TickerCard({ ticker }) {
 
   const fetchTickerData = async (ticker) => {
     try {
+      const date = new Date();
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+      const formattedDate = date.toISOString().split('T')[0].replace(/-/g, '-');
+
       const response = await axios.post(
         `http://localhost:3000/api/stockdata`,
-        {symbol: ticker}
+        {symbol: ticker, startDate: date,endDate}
+
       );
       setData(response.data);
     } catch (error) {

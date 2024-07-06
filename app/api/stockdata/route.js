@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
     const request = await req.json();
+    console.log(request);
     const { symbol, startDate, endDate } = request;
-
     if (!symbol) {
         return NextResponse.json(
             { message: "Symbol missing" },
@@ -15,16 +15,14 @@ export async function POST(req) {
 
     try {
         const quote = await yahooFinance.quote(symbol);
-        const searchResults = await yahooFinance.search(symbol);
-
-        let historical;
+        var historical
         if (startDate && endDate) {
             historical = await yahooFinance.historical(symbol, {
                 period1: startDate,
+                
                 period2: endDate,
             });
-        }
-
+        };
         return NextResponse.json({
             quote,
             historical: historical || 'Historical data not requested',
