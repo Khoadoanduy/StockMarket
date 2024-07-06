@@ -43,7 +43,6 @@ export default function TickerCard({ ticker }) {
       }
       startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
       const formattedStartDate = startDate.toISOString().split('T')[0];
-      console.log(formattedStartDate)
 
       const response = await axios.post(
         `http://localhost:3000/api/stockdata`,
@@ -127,21 +126,17 @@ export default function TickerCard({ ticker }) {
           </div>
         </div>
         <div className="date-range-selector">
-          <label htmlFor="date-range">Select Date Range:</label>
-          <select
-            id="date-range"
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-          >
-            <option value="1d">1 Day</option>
-            <option value="5d">5 Days</option>
-            <option value="1m">1 Month</option>
-            <option value="6m">6 Months</option>
-            <option value="1y">1 Year</option>
-            <option value="3y">3 Years</option>
-            <option value="5y">5 Years</option>
-            <option value="10y">10 Years</option>
-          </select>
+          <label>Select Date Range:</label>
+          <div className="button-group">
+            <button className="ml-2" onClick={() => setDateRange('1d')}>1 Day</button>
+            <button className="ml-2" onClick={() => setDateRange('5d')}>5 Days</button>
+            <button className="ml-2" onClick={() => setDateRange('1m')}>1 Month</button>
+            <button className="ml-2" onClick={() => setDateRange('6m')}>6 Months</button>
+            <button className="ml-2" onClick={() => setDateRange('1y')}>1 Year</button>
+            <button className="ml-2" onClick={() => setDateRange('3y')}>3 Years</button>
+            <button className="ml-2" onClick={() => setDateRange('5y')}>5 Years</button>
+            <button className="ml-2" onClick={() => setDateRange('10y')}>10 Years</button>
+          </div>
         </div>
       </div>
     </div>
