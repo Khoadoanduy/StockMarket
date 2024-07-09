@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/StockContainer.css";
+import dynamic from 'next/dynamic';
 
 export default function TickerCard({ ticker }) {
   const [data, setData] = useState(null);
   const [dateRange, setDateRange] = useState('1d');
+  const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+  
   const fetchTickerData = async (ticker, dateRange) => {
     try {
       const endDate = new Date();
@@ -15,12 +18,6 @@ export default function TickerCard({ ticker }) {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 10);
       switch (dateRange) {
-        case '1d':
-          startDate.setDate(endDate.getDate() - 1);
-          break;
-        case '5d':
-          startDate.setDate(endDate.getDate() - 5);
-          break;
         case '1m':
           startDate.setMonth(endDate.getMonth() - 1);
           break;
@@ -54,6 +51,38 @@ export default function TickerCard({ ticker }) {
       console.log(error);
     }
   };
+  const CandlestickChart = ({ data }) => {
+    const series = [
+      {
+        name: 'AAPL',
+        data: data.historical.map((d) => ({
+          x: new Date(d.date).getTime(),
+          y: [d.open, d.high, d.low, d.close],
+        })),
+      },
+    ];
+      const options = {
+        chart: {
+          type: 'candlestick',
+          height: 350,
+        },
+        title: {
+          text: 'Candlestick Chart',
+          align: 'left',
+        },
+        xaxis: {
+          type: 'datetime',
+        },
+        yaxis: {
+          tooltip: {
+            enabled: true,
+          },
+        },
+      };
+      return(
+        <ReactApexChart options={options} series={series} type="candlestick" height={350} width={"100%"}/>
+      )
+  }
 
   useEffect(() => {
     fetchTickerData(ticker, dateRange);
@@ -140,6 +169,11 @@ export default function TickerCard({ ticker }) {
           </div>
         </div>
       </div>
+      <div id="chart">
+        <CandlestickChart data={data} />
+      </div>
+        
+      
     </div>
   );
 }
