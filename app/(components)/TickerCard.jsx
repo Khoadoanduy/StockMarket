@@ -13,6 +13,7 @@ export default function TickerCard({ ticker }) {
       const formattedEndDate = endDate.toISOString().split('T')[0];
 
       const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 10);
       switch (dateRange) {
         case '1d':
           startDate.setDate(endDate.getDate() - 1);
@@ -43,7 +44,7 @@ export default function TickerCard({ ticker }) {
       }
       startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
       const formattedStartDate = startDate.toISOString().split('T')[0];
-
+      console.log(formattedStartDate,formattedEndDate);
       const response = await axios.post(
         `http://localhost:3000/api/stockdata`,
         { symbol: ticker, startDate: formattedStartDate, endDate: formattedEndDate }
