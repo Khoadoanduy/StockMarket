@@ -19,7 +19,7 @@ const StockContainer = () => {
         <button type="submit">Fetch Data</button>
       </form> */}
       {symbols.map((symbol) => (
-        <TickerCard ticker={symbol}  />
+        <TickerCard ticker={symbol} key={symbol} />
       ))}
     </div>
   );

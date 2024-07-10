@@ -61,24 +61,66 @@ export default function TickerCard({ ticker }) {
         })),
       },
     ];
-      const options = {
-        chart: {
-          type: 'candlestick',
-          height: 350,
+    const options = {
+      chart: {
+        type: 'candlestick',
+        height: 100,
+        background: '#000', // Black background
+        events: {
+          mouseMove: function(event, chartContext, config) {
+            // Custom hover effect
+            const sticks = document.querySelectorAll('.apexcharts-candlestick-series');
+            sticks.forEach(stick => {
+              stick.addEventListener('mouseenter', function() {
+                this.style.fill = '#FFFF00'; // Change color on hover
+              });
+              stick.addEventListener('mouseleave', function() {
+                this.style.fill = ''; // Revert color on mouse leave
+              });
+            });
+          }
+        }
+      },
+      title: {
+        text: 'Candlestick Chart',
+        align: 'left',
+        style: {
+          color: '#FFF', // White title color
         },
-        title: {
-          text: 'Candlestick Chart',
-          align: 'left',
+      },
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          style: {
+            colors: '#FFF' // White x-axis labels
+          }
+        }
+      },
+      yaxis: {
+        tooltip: {
+          enabled: true,
         },
-        xaxis: {
-          type: 'datetime',
-        },
-        yaxis: {
-          tooltip: {
-            enabled: true,
-          },
-        },
-      };
+        labels: {
+          style: {
+            colors: '#FFF' // White y-axis labels
+          }
+        }
+      },
+      plotOptions: {
+        candlestick: {
+          colors: {
+            upward: '#00FF00', // Green for upward sticks
+            downward: '#FF0000' // Red for downward sticks
+          }
+        }
+      },
+      grid: {
+        borderColor: '#333', // Dark grid lines
+      },
+      tooltip: {
+        theme: 'dark', // Dark theme for tooltip
+      }
+    };
       return(
         <ReactApexChart options={options} series={series} type="candlestick" height={350} width={"100%"}/>
       )
