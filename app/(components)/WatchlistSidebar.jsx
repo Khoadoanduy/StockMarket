@@ -19,6 +19,7 @@ function TickerRow({ ticker, removeFromWatchlist }) {
 export default function WatchlistSidebar({ email, watchlist, setWatchList }) {
   const [textbox, setTextbox] = useState("");
   const { data: session } = useSession();
+  const [stockdata, setStockData] = useState(null);
   const updateWatchList = async (watchlist) => {
     try {
       await axios.post(`http://localhost:3000/api/watchlist/update-watchlist`, {
@@ -37,10 +38,29 @@ export default function WatchlistSidebar({ email, watchlist, setWatchList }) {
     updateWatchList(newWatchlist);
   };
 
-  const addToWatchlist = () => {
-    const newWatchlist = [...watchlist, textbox];
-    updateWatchList(newWatchlist);
-    setTextbox("");
+  const addToWatchlist = async () => {
+    const newTicker = textbox.trim().toUpperCase();
+    if (!newTicker) return;
+  
+    try {
+      // Fetch current price
+      const response = await axios.post(`http://localhost:3000/api/stockdata`, { symbol: newTicker });
+      const currentPrice = response.data.quote.regularMarketPrice; // Correctly accessing the current price
+      
+      const newWatchlist = [
+        ...watchlist,
+        {
+          symbol: newTicker,
+          timestamp: [new Date().toISOString().split('T')[0]],
+          price: [currentPrice],
+        },
+      ];
+      console.log(newWatchlist)
+      updateWatchList(newWatchlist);
+      setTextbox("");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
