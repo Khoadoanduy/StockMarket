@@ -23,12 +23,7 @@ export async function POST(req) {
     }
 
     // Update the user's watchlist
-    userProfile.updateOne(
-      { email: email},
-      { $push}
-    );
-    
-    // Save the updated user profile
+    userProfile.watchlist = watchlist;
     await userProfile.save();
 
     console.log(userProfile);
