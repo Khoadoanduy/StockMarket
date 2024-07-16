@@ -12,11 +12,13 @@ export default function TickerCard({ ticker }) {
   const fetchTickerData = async (ticker, dateRange) => {
     try {
       const endDate = new Date();
+      endDate.setDate(endDate.getDate() - 1);
       endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
       const formattedEndDate = endDate.toISOString().split('T')[0];
 
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 10);
+      startDate.setDate(startDate.getDate() - 7);
+      console.log("start:" + startDate)
       switch (dateRange) {
         case '1m':
           startDate.setMonth(endDate.getMonth() - 1);
@@ -37,7 +39,7 @@ export default function TickerCard({ ticker }) {
           startDate.setFullYear(endDate.getFullYear() - 10);
           break;
         default:
-          startDate.setDate(endDate.getDate() - 1);
+          startDate.setDate(endDate.getDate() - 7);
       }
       startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
       const formattedStartDate = startDate.toISOString().split('T')[0];
