@@ -8,27 +8,32 @@ function TickerRow({ ticker, removeFromWatchlist }) {
   return (
     <div className="border w-28">
       <span className="ml-2">{ticker.symbol}</span>
-      <span className="ml-10 mr-2" onClick={handleClick}>
+      <span className="ml-10 mr-2 cursor-pointer" onClick={handleClick}>
         X
       </span>
     </div>
   );
 }
 
-export default function WatchlistSidebar({ email, watchlist, setWatchList }) {
+export default function WatchlistSidebar({ watchlist, setWatchList }) {
   const [textbox, setTextbox] = useState("");
   const { data: session } = useSession();
 
   const updateWatchList = async (watchlist) => {
+    if (!session || !session.user || !session.user.email) {
+      console.error("Session is not available or invalid.");
+      return;
+    }
+
     try {
-      await axios.post(`http://localhost:3000/api/watchlist/update-watchlist`, {
+      const response = await axios.post(`/api/watchlist/update-watchlist`, {
         email: session.user.email,
         watchlist: watchlist,
       });
 
-      setWatchList(watchlist);
+      setWatchList(response.data.watchlist);
     } catch (error) {
-      console.log(error);
+      console.log("Error updating watchlist:", error.response?.data || error.message);
     }
   };
 
@@ -38,11 +43,14 @@ export default function WatchlistSidebar({ email, watchlist, setWatchList }) {
   };
 
   const addToWatchlist = () => {
+    if (!textbox) return;
+
     const newTicker = {
-      symbol: textbox,
+      symbol: textbox.toUpperCase(),
       timestamp: [new Date()],
-      price: [] // Or set initial price if available
+      price: [0], // Initial price can be set to 0 or any other default value
     };
+
     const newWatchlist = [...watchlist, newTicker];
     updateWatchList(newWatchlist);
     setTextbox("");
@@ -59,12 +67,12 @@ export default function WatchlistSidebar({ email, watchlist, setWatchList }) {
       ))}
       <input
         className="text-black"
-        type="Text"
+        type="text"
         value={textbox}
         onChange={(e) => setTextbox(e.target.value)}
       />
       <button type="button" className="ml-4 border" onClick={addToWatchlist}>
-        Update watchlist
+        Add to Watchlist
       </button>
     </div>
   );

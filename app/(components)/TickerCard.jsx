@@ -39,7 +39,7 @@ export default function TickerCard({ ticker }) {
           startDate.setFullYear(endDate.getFullYear() - 10);
           break;
         default:
-          startDate.setDate(endDate.getDate() - 7);
+          startDate.setDate(endDate.getDate() - 7 );
       }
       startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
       const formattedStartDate = startDate.toISOString().split('T')[0];
