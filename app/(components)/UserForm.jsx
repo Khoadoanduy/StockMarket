@@ -23,7 +23,9 @@ const UserForm = () => {
     const res = await fetch("/api/Users", {
       method: "POST",
       body: JSON.stringify({ formData }),
-      "content-type": "application/json",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!res.ok) {
@@ -36,51 +38,51 @@ const UserForm = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <form
         onSubmit={handleSubmit}
         method="post"
-        className="flex flex-col gap-3 w-1/2"
+        className="flex flex-col gap-4 p-6 bg-gray-800 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h1>Create New User</h1>
-        <label>Full Name</label>
+        <h1 className="text-2xl text-white mb-4">Create New User</h1>
+        <label className="text-gray-300">Full Name</label>
         <input
           id="name"
           name="name"
           type="text"
           onChange={handleChange}
-          required={true}
-          value={formData.name}
-          className="m-2 bg-slate-400 rounded"
+          required
+          value={formData.name || ""}
+          className="p-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <label>Email</label>
+        <label className="text-gray-300">Email</label>
         <input
           id="email"
           name="email"
           type="text"
           onChange={handleChange}
-          required={true}
-          value={formData.email}
-          className="m-2 bg-slate-400 rounded"
+          required
+          value={formData.email || ""}
+          className="p-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <label>Password</label>
+        <label className="text-gray-300">Password</label>
         <input
           id="password"
           name="password"
           type="password"
           onChange={handleChange}
-          required={true}
-          value={formData.password}
-          className="m-2 bg-slate-400 rounded"
+          required
+          value={formData.password || ""}
+          className="p-2 bg-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="submit"
           value="Create User"
-          className="bg-blue-300 hover:bg-blue-100"
+          className="p-2 bg-blue-600 text-white rounded hover:bg-blue-500 cursor-pointer transition duration-300"
         />
       </form>
-      <p className="text-red-500">{errorMessage}</p>
-    </>
+      {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+    </div>
   );
 };
 
