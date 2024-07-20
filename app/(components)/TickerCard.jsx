@@ -139,8 +139,8 @@ export default function TickerCard({ ticker }) {
   const { quote, historical } = data;
 
   return (
-    <div className="stock-info border">
-      <div className="stock-item">
+    <div className="stock-info border rounded-xl">
+      <div className="stock-item m-2">
         <div className="stock-header">
           <h1>
             {quote.longName} ({quote.symbol})
