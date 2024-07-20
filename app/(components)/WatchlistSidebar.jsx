@@ -49,7 +49,7 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
       symbol: textbox.toUpperCase(),
       timestamp: [new Date()],
       price: [0], // Initial price can be set to 0 or any other default value
-    };x
+    };
 
     const newWatchlist = [...watchlist, newTicker];
     updateWatchList(newWatchlist);
