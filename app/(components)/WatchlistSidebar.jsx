@@ -19,7 +19,7 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
   const [textbox, setTextbox] = useState("");
   const { data: session } = useSession();
 
-  const updateWatchList = async (watchlist) => {
+  const updateWatchList = async (newTicker) => {
     if (!session || !session.user || !session.user.email) {
       console.error("Session is not available or invalid.");
       return;
@@ -28,10 +28,10 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
     try {
       const response = await axios.post(`/api/watchlist/update-watchlist`, {
         email: session.user.email,
-        watchlist: watchlist,
+        newTicker: newTicker,
       });
 
-      setWatchList(response.data.watchlist);
+      // setWatchList(response.data.watchlist);
     } catch (error) {
       console.log("Error updating watchlist:", error.response?.data || error.message);
     }
@@ -51,9 +51,9 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
       price: [0], // Initial price can be set to 0 or any other default value
     };
 
-    const newWatchlist = [...watchlist, newTicker];
-    console.log(newWatchlist);
-    updateWatchList(newWatchlist);
+    // const newWatchlist = [...watchlist, newTicker];
+    // console.log(newWatchlist);
+    updateWatchList(newTicker);
     setTextbox("");
   };
    // This will print the array of all symbols
