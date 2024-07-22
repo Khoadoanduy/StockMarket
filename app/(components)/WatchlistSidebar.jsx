@@ -52,6 +52,7 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
     };
 
     const newWatchlist = [...watchlist, newTicker];
+    console.log(newWatchlist);
     updateWatchList(newWatchlist);
     setTextbox("");
   };
