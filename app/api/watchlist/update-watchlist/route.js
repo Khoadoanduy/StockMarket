@@ -6,6 +6,7 @@ export async function POST(req) {
     const request = await req.json();
     console.log(request);
     const { email, watchlist } = request;
+    console.log(watchlist)
 
     // Confirm data exists
     if (!email || !Array.isArray(watchlist)) {
@@ -26,7 +27,7 @@ export async function POST(req) {
     userProfile.watchlist = watchlist;
     await userProfile.save();
 
-    console.log(userProfile);
+
     return NextResponse.json(
       { message: "Watchlist updated successfully" },
       { status: 200 }

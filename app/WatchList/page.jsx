@@ -42,7 +42,7 @@ export function WatchList() {
         </div>
         <div id="watchlist-main">
           {watchList.map((ticker) => (
-            <TickerCard ticker={ticker} />
+            <TickerCard ticker={ticker.symbol} />
           ))}
         </div>
       </div>

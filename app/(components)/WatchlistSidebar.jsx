@@ -7,7 +7,7 @@ function TickerRow({ ticker, removeFromWatchlist }) {
 
   return (
     <div className="border w-28">
-      <span className="ml-2">{ticker.symbol}</span>
+      <span className="ml-2">{ticker}</span>
       <span className="ml-10 mr-2 cursor-pointer" onClick={handleClick}>
         X
       </span>
@@ -55,16 +55,22 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
     updateWatchList(newWatchlist);
     setTextbox("");
   };
-
+   // This will print the array of all symbols
+  //  const symbols = watchlist.map((ticker) => ticker.symbol);
+  //  console.log(symbols); // This will print the array of all symbols
+   
   return (
     <div className="my-4">
       {watchlist.map((ticker) => (
+        
         <TickerRow
-          ticker={ticker}
+          ticker={ticker.symbol}
           key={ticker.symbol}
           removeFromWatchlist={removeFromWatchlist}
         />
       ))}
+      
+
       <input
         className="text-black"
         type="text"
