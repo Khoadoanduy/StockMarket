@@ -28,8 +28,8 @@ export async function POST(req) {
     const watchlist = userProfile.watchlist;
     // push new Ticker
     // check if ticker exists
-    if(watchlist.some(ticker => ticker.name === newTicker.symbol)){
-      
+    if(watchlist.some(ticker => ticker.symbol === newTicker.symbol)){
+      return NextResponse.json({ message: "Ticker already exists" }, { status: 400 });
     }
     return NextResponse.json({ watchlist }, { status: 200 });
   } catch (error) {
