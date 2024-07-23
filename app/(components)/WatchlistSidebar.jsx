@@ -31,7 +31,7 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
         newTicker: newTicker,
       });
 
-      // setWatchList(response.data.watchlist);
+      // setWatchList(response.data.newTicker);
     } catch (error) {
       console.log("Error updating watchlist:", error.response?.data || error.message);
     }
@@ -39,7 +39,7 @@ export default function WatchlistSidebar({ watchlist, setWatchList }) {
 
   const removeFromWatchlist = (symbol) => {
     const newWatchlist = watchlist.filter((t) => t.symbol !== symbol);
-    updateWatchList(newWatchlist);
+    // updateWatchList(newWatchlist);
   };
 
   const addToWatchlist = () => {

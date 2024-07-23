@@ -4,36 +4,34 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const request = await req.json();
-    console.log(request)
-    const { email, newTicker } = request;
-    console.log(newTicker)
+    console.log(request);
+    const email = request.email;
+    const newTicker = request.newTicker;
+    console.log(newTicker);
 
-    // Confirm data exists
-    if (!email || !newTicker) {
+    //Confirm data exists
+    if (!email) {
       return NextResponse.json(
-        { message: "email or watchlist is missing or invalid" },
+        { message: "email is missing" },
         { status: 400 }
       );
     }
 
-    // Check for user profile
-    const userProfile = await User.findOne({ email: email }).exec();
-    
+    // check for duplicate emails
+    const userProfile = await User.findOne({ email: email }).lean().exec();
 
     if (!userProfile) {
       return NextResponse.json({ message: "User not found" }, { status: 400 });
     }
-    
-    // Update the user's watchlist
-    console.log("profile: +" + userProfile)
-    
-    await userProfile.save();
 
-
-    return NextResponse.json(
-      { message: "Watchlist updated successfully" },
-      { status: 200 }
-    );
+    console.log(userProfile);
+    const watchlist = userProfile.watchlist;
+    // push new Ticker
+    // check if ticker exists
+    if(watchlist.some(ticker => ticker.name === newTicker.symbol)){
+      
+    }
+    return NextResponse.json({ watchlist }, { status: 200 });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ message: "Error", error }, { status: 500 });
