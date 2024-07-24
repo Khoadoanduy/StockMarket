@@ -1,3 +1,4 @@
+import { Save } from "lucide-react";
 import User from "/app/(models)/User";
 import { NextResponse } from "next/server";
 
@@ -19,6 +20,7 @@ export async function POST(req) {
 
     // check for duplicate emails
     const userProfile = await User.findOne({ email: email }).lean().exec();
+    console.log(userProfile)
 
     if (!userProfile) {
       return NextResponse.json({ message: "User not found" }, { status: 400 });
@@ -31,6 +33,14 @@ export async function POST(req) {
     if(watchlist.some(ticker => ticker.symbol === newTicker.symbol)){
       return NextResponse.json({ message: "Ticker already exists" }, { status: 400 });
     }
+    else{ 
+      watchlist.push(newTicker);
+    }
+    userProfile.watchlist = watchlist
+    console.log(userProfile.watchlist)
+    await userProfile.save()
+
+    
     return NextResponse.json({ watchlist }, { status: 200 });
   } catch (error) {
     console.log(error);
