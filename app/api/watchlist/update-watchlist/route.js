@@ -34,11 +34,14 @@ export async function POST(req) {
       return NextResponse.json({ message: "Ticker already exists" }, { status: 400 });
     }
     else{ 
-      watchlist.push(newTicker);
+      // watchlist.push(newTicker);
+      await User.updateOne(
+        { email: email },
+        {$push:{watchlist: newTicker}}
+      )
     }
     userProfile.watchlist = watchlist
     console.log(userProfile.watchlist)
-    await userProfile.save()
 
     
     return NextResponse.json({ watchlist }, { status: 200 });
