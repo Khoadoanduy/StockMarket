@@ -24,7 +24,7 @@ async function checkStockPrices() {
 
   for (const user of users) {
     for (const ticker of user.watchlist) {
-      const response = await axios.get(`API_URL_TO_GET_STOCK_PRICE/${ticker.symbol}`);
+      const response = await axios.get(`/api/stockdata/${ticker.symbol}`);
       const currentPrice = response.data.price;
 
       const lastPrice = ticker.price[ticker.price.length - 1];
