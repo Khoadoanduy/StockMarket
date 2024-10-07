@@ -31,8 +31,16 @@ async function checkStockPrices() {
       const percentageChange = ((currentPrice - lastPrice) / lastPrice) * 100;
 
       if (Math.abs(percentageChange) >= 3) {
-        const message = `The price of ${ticker.symbol} has changed by ${percentageChange.toFixed(2)}%. Current price: ${currentPrice}`;
-        await sendEmail(user.email, `Significant price change for ${ticker.symbol}`, message);
+        const message = `The price of ${
+          ticker.symbol
+        } has changed by ${percentageChange.toFixed(
+          2
+        )}%. Current price: ${currentPrice}`;
+        await sendEmail(
+          user.email,
+          `Significant price change for ${ticker.symbol}`,
+          message
+        );
       }
     }
   }
